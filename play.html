@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Penalty King</title>
+<style>
+  :root{
+    --bg:#0c1411;--panel:#13201b;--panel2:#1b2c25;--line:#2a4438;--text:#e8f0ec;
+    --muted:#9bb3a8;--accent:#16c079;--goal:#16c079;--save:#3aa0ff;--miss:#ff5d5d;--prick:#16c079;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;}
+  .app{max-width:480px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;
+    padding:env(safe-area-inset-top) 16px calc(16px + env(safe-area-inset-bottom));}
+  h1{font-size:1.4rem;letter-spacing:.5px;margin:16px 0 4px;}
+  h2{font-size:1.05rem;margin:18px 0 8px;color:var(--muted);font-weight:600;}
+  .sub{color:var(--muted);font-size:.85rem;margin:0 0 12px;}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;}
+  button.primary{width:100%;padding:16px;font-size:1.1rem;font-weight:700;color:#042417;
+    background:var(--accent);border:none;border-radius:14px;margin-top:auto;}
+  button.primary:disabled{opacity:.45;}
+  button.ghost{background:transparent;color:var(--text);border:1px solid var(--line);
+    border-radius:10px;padding:10px 14px;}
+  button.ghost.active{background:var(--panel2);border-color:var(--accent);}
+  .row{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--line);}
+  .row:last-child{border-bottom:none;}
+  .row .name{flex:1;}
+  .row.keeper{background:rgba(58,160,255,.08);border-radius:8px;}
+  .row.shooter{background:rgba(22,192,121,.10);border-radius:8px;}
+  .tag{font-size:.72rem;color:var(--muted);}
+  .meter{letter-spacing:2px;color:var(--prick);}
+  .banner{font-weight:800;letter-spacing:3px;text-align:center;padding:10px;border-radius:10px;}
+  .banner.goal{color:var(--goal);background:rgba(22,192,121,.12);}
+  .banner.save{color:var(--save);background:rgba(58,160,255,.12);}
+  .banner.miss{color:var(--miss);background:rgba(255,93,93,.12);}
+  .commentary{line-height:1.5;margin:10px 2px;}
+  .center{text-align:center;}.big{font-size:1.8rem;font-weight:800;}
+  .spinner{margin:40px auto;color:var(--muted);text-align:center;}
+  .langrow{display:flex;gap:8px;margin:8px 0;}
+  .ff{display:flex;justify-content:space-between;padding:6px 2px;color:var(--muted);}
+  .ff b{color:var(--text);}
+  input[type=number]{width:64px;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px;}
+  label.file{display:block;text-align:center;padding:14px;border:1px solid var(--line);border-radius:10px;cursor:pointer;}
+  .row.clk{cursor:pointer;}
+  .muted{color:var(--muted);}
+  #overlay{display:none;position:fixed;inset:0;z-index:10;}
+  #overlay .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.55);}
+  #overlay .card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:min(420px,92vw);max-height:88vh;overflow:auto;margin:0;}
+  .skillgrid{display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;margin:8px 0;}
+  .skillgrid div{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:3px 0;}
+</style>
+</head>
+<body>
+<div class="app" id="app"><div class="spinner">Startar...</div></div>
+<div id="overlay"></div>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+<script type="module">
+// ─────────── engine bridge (same Python engine as the CLI, via Pyodide) ───────────
+const MODULES = ["__init__.py","config.py","hrf_parser.py","profiles.py","penalty.py",
+  "game.py","report.py","narrator.py","i18n.py","montecarlo.py","engine.py"];
+const LANGS = ["__init__.py","sv.py","en.py"];
+let py = null;
+
+async function fetchText(u){ const r = await fetch(u, {cache:"no-store"}); if(!r.ok) throw new Error("kan inte hämta "+u); return r.text(); }
+
+async function initEngine(status){
+  status("Laddar Python (första gången tar några sekunder)...");
+  py = await loadPyodide({ indexURL:"https://cdn.jsdelivr.net/pyodide/v0.26.2/full/" });
+  const FS = py.FS;
+  const mkdirp = d => { let c=""; for(const p of d.split("/").filter(Boolean)){ c+="/"+p; try{FS.mkdir(c);}catch(e){} } };
+  mkdirp("/engine/ht_penalty_king/languages");
+  status("Hämtar spelmotorn...");
+  for(const m of MODULES) FS.writeFile("/engine/ht_penalty_king/"+m, await fetchText("./"+m));
+  for(const m of LANGS)   FS.writeFile("/engine/ht_penalty_king/languages/"+m, await fetchText("./languages/"+m));
+  status("Startar motorn...");
+  await py.runPythonAsync("import sys\nif '/engine' not in sys.path: sys.path.insert(0,'/engine')\nimport ht_penalty_king.engine as eng\n");
+}
+const call = async expr => JSON.parse(await py.runPythonAsync(`import json; json.dumps(${expr}, default=str)`));
+const setLanguage = c => call(`eng.set_language(${JSON.stringify(c)}) or None`);
+const uiStrings = () => call(`eng.ui_strings()`);
+async function loadHrf(text){ try{py.FS.mkdir("/uploads");}catch(e){} py.FS.writeFile("/uploads/team.hrf", text);
+  return call(`eng.load_hrf("/uploads/team.hrf")`); }
+const createGame = (sq,seed,wf)=> call(`eng.create_game(${sq|0}, ${seed===null?"None":seed|0}, ${wf|0})`);
+const simWatch  = g => call(`eng.simulate_until_watch_threshold(${g|0})`);
+const curShot   = g => call(`eng.get_current_shot(${g|0})`);
+const advance   = g => call(`eng.advance_game(${g|0})`);
+const ranking   = g => call(`eng.final_ranking(${g|0})`);
+const stats     = g => call(`eng.player_stats(${g|0})`);
+
+// ─────────── UI ───────────
+const app = document.getElementById("app");
+const meter = n => `<span class="meter">${"●".repeat(Math.max(0,Math.min(5,n)))}${"○".repeat(5-Math.max(0,Math.min(5,n)))}</span>`;
+const esc = s => String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+let S = { lang:"sv", squad:null, game:null, watchFrom:10, shot:null, result:null, byId:{} };
+let T = {};  // web UI strings for the active language (from engine.ui_strings)
+
+async function applyLang(code){ S.lang = code; await setLanguage(code); T = await uiStrings(); }
+
+const overlay = document.getElementById("overlay");
+function setSquad(sq){ S.squad = sq; S.byId = {}; sq.players.forEach(p=>S.byId[p.id]=p); }
+function saveLastHrf(text, team){ try{ localStorage.setItem("pk_hrf", text); localStorage.setItem("pk_team", team||""); }catch(e){} }
+function lastHrf(){ try{ return localStorage.getItem("pk_hrf"); }catch(e){ return null; } }
+
+function showCard(p, prickar){
+  if(!p) return;
+  const c = T.card || {}; const sk = c.skills || {};
+  const grid = ["keeper","defending","playmaking","winger","passing","scoring","set_pieces"]
+    .map(k=>`<div><span class="muted">${esc(sk[k]||k)}</span><b>${p.skills[k]}</b></div>`).join("")
+    + `<div><span class="muted">${esc(sk.form||"Form")}</span><b>${p.form}</b></div>`
+    + `<div><span class="muted">${esc(sk.experience||"")}</span><b>${p.experience}</b></div>`;
+  overlay.innerHTML = `<div class="backdrop"></div><div class="card panel">
+    <div class="row" style="border-bottom:1px solid var(--line)"><b class="name">${esc(p.name)}</b>
+      <button class="ghost" id="cardclose">${esc(c.close||"X")}</button></div>
+    <p class="sub">${p.age} ${esc(c.years||"")}${p.specialty?` · ${esc(p.specialty)}`:""}${p.homegrown?" · ★":""}</p>
+    <div class="skillgrid">${grid}</div>
+    <p class="sub">${esc(p.personality.aggressiveness)} · ${esc(p.personality.agreeability)} · ${esc(p.personality.honesty)}</p>
+    ${prickar!=null?`<div class="row" style="border:none"><span class="name">${esc(T.prickar_word||"prickar")}</span>${meter(prickar)}</div>`:""}
+  </div>`;
+  overlay.style.display = "block";
+  overlay.querySelector("#cardclose").onclick = closeCard;
+  overlay.querySelector(".backdrop").onclick = closeCard;
+}
+function closeCard(){ overlay.style.display = "none"; overlay.innerHTML = ""; }
+
+// tap any player row (with data-pid) anywhere to open their card
+app.addEventListener("click", e=>{
+  const row = e.target.closest("[data-pid]"); if(!row) return;
+  const pr = row.dataset.prickar !== undefined ? Number(row.dataset.prickar) : null;
+  showCard(S.byId[Number(row.dataset.pid)], pr);
+});
+
+function header(){ return `<h1>PENALTY KING 🥅</h1>`; }
+
+function screenImport(){
+  app.innerHTML = header() + `
+    <p class="sub">${esc(T.intro)}</p>
+    <div class="langrow">
+      ${["sv","en"].map(l=>`<button class="ghost ${S.lang===l?"active":""}" data-lang="${l}">${l.toUpperCase()}</button>`).join("")}
+    </div>
+    <div class="panel">
+      <label class="file">${esc(T.choose_file)}<input id="file" type="file" accept=".hrf,text/plain" hidden></label>
+      <p class="sub" id="err" style="color:var(--miss)"></p>
+    </div>
+    <div id="squadbox"></div>
+    <button class="primary" id="start" disabled>${esc(T.start)}</button>`;
+  app.querySelectorAll("[data-lang]").forEach(b=>b.onclick=async()=>{ await applyLang(b.dataset.lang); screenImport(); });
+  app.querySelector("#file").onchange = async e=>{
+    const f = e.target.files[0]; if(!f) return;
+    try{ const text = await f.text(); const sq = await loadHrf(text); setSquad(sq); saveLastHrf(text, sq.team); renderSquad(); }
+    catch(ex){ app.querySelector("#err").textContent = T.file_error + ex.message; }
+  };
+  app.querySelector("#start").onclick = startGame;
+  if(S.squad) renderSquad();
+}
+function renderSquad(){
+  const box = app.querySelector("#squadbox");
+  box.innerHTML = `<h2>${esc(S.squad.team)} — ${S.squad.count} ${esc(T.players_word)}</h2>
+    <div class="panel">${S.squad.players.map(p=>`<div class="row clk" data-pid="${p.id}"><span class="name">${esc(p.name)}</span>
+      <span class="tag">${esc(T.scoring_abbr)} ${p.skills.scoring} · ${esc(T.keeper_abbr)} ${p.skills.keeper}</span></div>`).join("")}</div>
+    <div class="panel"><div class="row" style="border:none">
+      <span class="name">${esc(T.watch_from)}</span>
+      <input type="number" id="wf" min="2" max="${S.squad.count}" value="${S.watchFrom}"><span class="tag">${esc(T.remaining_word)}</span>
+    </div></div>`;
+  box.querySelector("#wf").onchange = e=>{ S.watchFrom = Number(e.target.value)||10; };
+  app.querySelector("#start").disabled = false;
+}
+async function startGame(){
+  await setLanguage(S.lang);
+  const g = await createGame(S.squad.squad, null, S.watchFrom);
+  S.game = g.game;
+  screenFastForward();
+}
+async function screenFastForward(){
+  app.innerHTML = header() + `<div class="spinner">${esc(T.warming_up)}</div>`;
+  const ff = await simWatch(S.game);
+  app.innerHTML = header() + `
+    <h2>${esc(T.dust_settles)}</h2>
+    <div class="panel">${ff.eliminations.map(e=>`<div class="ff"><span>💥 ${esc(e.name)} ${esc(T.eliminated_word)}</span><b>${e.alive_after} ${esc(T.remaining_word)}</b></div>`).join("")||`<p class="sub">${esc(T.no_eliminations)}</p>`}</div>
+    <h2>${esc(T.still_in)} (${ff.alive})</h2>
+    <div class="panel">${ff.survivors.map(r=>`<div class="row clk ${r.role==="keeper"?"keeper":""}" data-pid="${r.id}" data-prickar="${r.prickar}">
+      <span class="name">${r.role==="keeper"?"🧤 ":""}${esc(r.name)}</span>${meter(r.prickar)}</div>`).join("")}</div>
+    <button class="primary" id="go">${esc(T.see_endgame)}</button>`;
+  app.querySelector("#go").onclick = ()=>{ S.result=null; screenWatch(); };
+}
+async function screenWatch(){
+  S.shot = await curShot(S.game);
+  if(!S.shot){ return screenWinner(); }
+  drawWatch();
+}
+function drawWatch(){
+  const sh = S.shot, r = S.result;
+  app.innerHTML = header() + `
+    <h2>${sh.alive} ${esc(T.remaining_word)}</h2>
+    <div class="panel">
+      <div class="row keeper clk" data-pid="${sh.keeper.id}" data-prickar="${sh.keeper.prickar}"><span class="name">🧤 ${esc(sh.keeper.name)}</span>${meter(sh.keeper.prickar)}<span class="tag">${esc(T.in_goal)}</span></div>
+      <div class="row shooter clk" data-pid="${sh.shooter.id}" data-prickar="${sh.shooter.prickar}"><span class="name">⚽ ${esc(sh.shooter.name)}</span>${meter(sh.shooter.prickar)}<span class="tag">${esc(T.shooting)}</span></div>
+    </div>
+    ${sh.queue && sh.queue.length ? `<div class="sub" style="margin:2px 2px 6px">${esc(T.in_queue)} (${sh.queue.length}):</div>
+      <div class="panel">${sh.queue.map(q=>`<div class="row clk" data-pid="${q.id}" data-prickar="${q.prickar}"><span class="name">${esc(q.name)}</span>${meter(q.prickar)}</div>`).join("")}</div>` : ""}
+    ${!r ? `<p class="commentary">${esc(sh.commentary)}</p>` :
+      `<div class="panel"><div class="banner ${r.outcome}">${r.outcome==="goal"?esc(T.outcome_goal):r.outcome==="save"?esc(T.outcome_save):esc(T.outcome_miss)}</div>
+       <p class="commentary">${esc(r.commentary)}</p></div>`}
+    <button class="primary" id="btn">${!r?esc(T.take_kick):(r.finished?esc(T.see_winner):esc(T.next_shot))}</button>`;
+  app.querySelector("#btn").onclick = async ()=>{
+    if(!S.result){ S.result = await advance(S.game); drawWatch(); }
+    else if(S.result.finished){ screenWinner(); }
+    else { S.result=null; screenWatch(); }
+  };
+}
+async function screenWinner(){
+  const [rank, st] = [await ranking(S.game), await stats(S.game)];
+  app.innerHTML = header() + `
+    <div class="center" style="margin:20px 0"><div class="big">🏆</div><div class="big">${esc(rank[0].name)}</div>
+    <p class="sub">${esc(T.last_standing)}</p></div>
+    <h2>${esc(T.ranking_heading)}</h2>
+    <div class="panel">${rank.map(r=>`<div class="row"><span class="tag" style="width:28px">${r.rank}.</span>
+      <span class="name">${esc(r.name)}</span><span class="tag">${r.prickar} ${esc(T.prickar_word)}</span></div>`).join("")}</div>
+    <h2>${esc(T.stats_heading)}</h2>
+    <div class="panel">${st.slice(0,8).map(s=>`<div class="row"><span class="name">${esc(s.name)}</span>
+      <span class="tag">${s.goals} ${esc(T.goals_word)} · ${s.saves} ${esc(T.saves_word)} · ${s.eliminations_survived} ${esc(T.survived_word)}</span></div>`).join("")}</div>
+    <button class="primary" id="again">${esc(T.play_again)}</button>`;
+  app.querySelector("#again").onclick = ()=>{ S.game=null;S.shot=null;S.result=null; screenImport(); };
+}
+
+// ─────────── boot ───────────
+(async ()=>{
+  try{
+    await initEngine(msg=>{ app.innerHTML = header()+`<div class="spinner">${esc(msg)}</div>`; });
+    await applyLang(S.lang);
+    const saved = lastHrf();                     // remember the last team for quick replays
+    if(saved){ try{ setSquad(await loadHrf(saved)); }catch(e){} }
+    screenImport();
+  }catch(e){
+    app.innerHTML = header()+`<div class="spinner" style="color:var(--miss)">Fel: ${esc(e.message)}</div>`;
+  }
+})();
+</script>
+</body>
+</html>

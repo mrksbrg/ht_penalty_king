@@ -3,8 +3,8 @@
 Rules (made precise):
   * One keeper, the rest queue up FIFO to shoot.
   * Goal  -> keeper gets a prick and STAYS in goal (under siege); the scorer struts
-            to the back of the queue. A 5th prick eliminates the keeper and the front
-            of the queue steps in (scoring never makes you keeper).
+            to the back of the queue. A 5th prick eliminates the keeper, and the
+            player who scored that 5th goal steps into the goal himself.
   * Save/miss -> the keeper ESCAPES to the back of the queue; the shooter who failed
             must go in goal. (Being keeper is the bad job; a save is your way out.)
   * Keeper on 4 prickar -> the shot must be taken on the weaker foot.
@@ -104,11 +104,9 @@ def play_game(players: list[Player], cfg: Config, rng: random.Random) -> GameRes
                 alive.discard(keeper)
                 elimination_order.append(keeper)
                 if len(alive) > 1:
-                    keeper = queue.popleft()       # front of line steps in
-                    queue.append(shooter)          # scorer to the back
+                    keeper = shooter               # the scorer steps into the goal
                 else:
-                    queue.append(shooter)
-                    keeper = None                  # game over
+                    keeper = None                  # the scorer is the last man standing
                 concede_streak = 0
                 spell_attempts = 0
             else:

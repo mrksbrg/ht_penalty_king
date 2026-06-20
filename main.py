@@ -17,11 +17,10 @@ import sys
 import time
 
 from .config import Config
-from .game import play_game
 from .hrf_parser import find_latest_hrf, parse_players, team_name
 from .i18n import LANG
 from .languages import AVAILABLE as LANGUAGES
-from . import narrator
+from . import engine, narrator
 
 # Default: the HO HRF folder next to this package's parent.
 _DEFAULT_HRF_DIR = os.path.join(
@@ -99,21 +98,23 @@ def run(argv=None) -> int:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 
-    players = parse_players(hrf_path)
-    club = team_name(hrf_path)
-
     if args.stats is not None:
         from .montecarlo import run_stats
+        players = parse_players(hrf_path)
+        club = team_name(hrf_path)
         print(f"{club} — {len(players)} players — {os.path.basename(hrf_path)}")
         print(run_stats(players, cfg, args.stats, seed=cfg.seed))
         return 0
 
-    rng = random.Random(cfg.seed)
-    result = play_game(players, cfg, rng)
+    # Build the game through the shared engine API (same path the web app uses).
+    loaded = engine.load_hrf(hrf_path)
+    club = loaded["team"]
+    g = engine.create_game(loaded["squad"], seed=cfg.seed, watch_from=cfg.watch_from)
+    result = engine.get_result(g["game"])
 
-    show_rng = random.Random(cfg.seed if cfg.seed is not None else rng.random())
+    show_rng = random.Random(cfg.seed if cfg.seed is not None else random.random())
     print("\n" + LANG.ui("title", club=club))
-    print(LANG.ui("lineup", n=len(players), file=os.path.basename(hrf_path)))
+    print(LANG.ui("lineup", n=loaded["count"], file=os.path.basename(hrf_path)))
     if cfg.seed is not None:
         print(LANG.ui("seed", seed=cfg.seed))
 

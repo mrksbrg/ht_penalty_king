@@ -4,10 +4,11 @@ import type { LoadedSquad, Player } from "../engine/types";
 import { PlayerCard } from "../components/PlayerCard";
 
 // Swedish position labels + a defensive→attacking order used for sorting.
-const POSITION_ORDER = ["keeper", "defender", "wingback", "winger", "playmaker", "forward"];
+const POSITION_ORDER = ["keeper", "defender", "wingback", "winger", "playmaker", "forward", "trainer", "former"];
 const POSITION_LABEL: Record<string, string> = {
   keeper: "Målvakt", defender: "Försvarare", wingback: "Ytterback",
   winger: "Ytter", playmaker: "Mittfältare", forward: "Anfallare",
+  trainer: "Tränare", former: "F.d. spelare",
 };
 
 type SortKey = "tsi" | "position" | "age" | "name" | "matches";

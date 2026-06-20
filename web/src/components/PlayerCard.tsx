@@ -8,6 +8,7 @@ const SKILL_LABELS: Record<string, string> = {
 const POSITION_LABEL: Record<string, string> = {
   keeper: "Målvakt", defender: "Försvarare", wingback: "Ytterback",
   winger: "Ytter", playmaker: "Mittfältare", forward: "Anfallare",
+  trainer: "Tränare", former: "F.d. spelare",
 };
 
 const fmtValue = (v: number) => v.toLocaleString("sv-SE").replace(/,/g, " ");

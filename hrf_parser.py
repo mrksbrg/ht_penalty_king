@@ -68,6 +68,7 @@ class Player:
     homegrown: bool
     matches_team: int
     injury: int        # ska (-1 = fit)
+    trainer: bool = False   # TrainerType set -> this entry is a coach, not a player
 
     @property
     def fit(self) -> bool:
@@ -176,6 +177,7 @@ def parse_players(path: str) -> list[Player]:
                 homegrown=gs("homegr").lower() == "true",
                 matches_team=gi("MatchesCurrentTeam"),
                 injury=gi("ska", -1),
+                trainer=bool(gs("TrainerType")),
             )
         )
     if not players:

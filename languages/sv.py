@@ -115,6 +115,7 @@ STRINGS = {
         "positions": {
             "keeper": "Målvakt", "defender": "Försvarare", "wingback": "Ytterback",
             "winger": "Ytter", "playmaker": "Mittfältare", "forward": "Anfallare",
+            "trainer": "Tränare", "former": "F.d. spelare",
         },
         # highscore (topplista)
         "highscore": "Topplista",
@@ -594,6 +595,133 @@ STRINGS = {
             "Det gick inte fort, men det gick listigt.",
             "Rutinen löste det som benen inte längre orkar.",
             "Gammal är äldst, åtminstone den här gången.",
+        ],
+    },
+
+    # ───────── personlighet: skyttens reaktion på MÅL (varje mål) ─────────
+    "trait_goal": {
+        "ohederlig": [
+            "{s} pekar mot skyn som om det var planerat hela tiden. Det var det inte.",
+            "{s} firar lite för stort för att vara helt ärligt menat.",
+            "{s} hävdar efteråt att han placerade den exakt där han sa. Ingen minns att han sa något.",
+        ],
+        "otrevlig": [
+            "{s} firar rakt i ansiktet på {k}. Inte snyggt.",
+            "{s} gör mål och ser till att alla vet det, högljutt.",
+            "Inget lagfirande från {s} — bara en blick som säger 'self klart'.",
+        ],
+        "temperamentsfull": [
+            "{s} vrålar ut målet som om det vore en cupfinal.",
+            "{s} slår näven i luften så hårt att han nästan ramlar.",
+            "{s} exploderar i jubel — det är ju bara träning, men ändå.",
+        ],
+        "sympatisk": [
+            "{s} ber nästan {k} om ursäkt på vägen tillbaka.",
+            "{s} firar diskret och klappar {k} uppmuntrande.",
+            "{s} ser mest lättad ut, och ler ursäktande mot buren.",
+        ],
+        "arlig": [
+            "{s} nickar kort, plockar bollen och går tillbaka. Inget mer med det.",
+            "Ingen show från {s} — mål, och vidare.",
+            "{s} firar ungefär som man kvitterar ett paket. Sakligt.",
+        ],
+        "lugn": [
+            "{s} gör mål utan att en min förändras.",
+            "{s} vänder och går tillbaka som om utgången aldrig var i fråga.",
+            "Iskallt av {s}, som redan tänker på nästa sak.",
+        ],
+    },
+    # ───────── personlighet: skyttens reaktion på MISS (varje miss) ─────────
+    "trait_miss": {
+        "ohederlig": [
+            "{s} pekar genast på pricken, gräset, vinden — allt utom foten.",
+            "{s} låtsas att något störde honom precis i ansatsen.",
+            "{s} muttrar om att underlaget var manipulerat. Det var det inte.",
+        ],
+        "otrevlig": [
+            "{s} sparkar till bollkorgen och skyller surt på {k}.",
+            "{s} snäser åt den som vågar se road ut.",
+            "{s} lämnar pricken utan ett ord, men med desto mer attityd.",
+        ],
+        "temperamentsfull": [
+            "{s} får ett mindre utbrott och skriker mot ingenting särskilt.",
+            "{s} slår ut med armarna och stirrar ilsket mot himlen.",
+            "{s} ser ut att vilja sparka sönder målställningen.",
+        ],
+        "sympatisk": [
+            "{s} ler generat och rycker urskuldande på axlarna.",
+            "{s} ber nästan om ursäkt till laget för missen.",
+            "{s} tar det med ett snällt litet 'oj' och går vidare.",
+        ],
+        "arlig": [
+            "{s} pekar på sig själv. Helt mitt fel, säger gesten.",
+            "{s} skakar på huvudet åt sig själv, inga ursäkter.",
+            "{s} erkänner direkt att det var en usel straff.",
+        ],
+        "lugn": [
+            "{s} rycker oberört på axlarna. Det händer.",
+            "{s} ser inte ut att bry sig nämnvärt. Nästa.",
+            "Inte en rynka i pannan på {s}, trots missen.",
+        ],
+    },
+    # ───────── personlighet: målvaktens reaktion på RÄDDNING ─────────
+    "keeper_save_trait": {
+        "ohederlig": [
+            "{k} hävdar att han läste skytten som en bok. Möjligen i efterhand.",
+            "{k} firar som om han planerat varenda detalj.",
+        ],
+        "otrevlig": [
+            "{k} ger skytten en hånfull applåd. Helt onödigt.",
+            "{k} säger något kort och elakt åt skytten på väg upp.",
+        ],
+        "temperamentsfull": [
+            "{k} vrålar ut räddningen rakt mot skytten.",
+            "{k} pumpar nävarna som om han just vunnit allt.",
+        ],
+        "sympatisk": [
+            "{k} hjälper nästan skytten på fötter efteråt.",
+            "{k} ler ursäktande, som om räddningen var en olycka.",
+        ],
+        "arlig": [
+            "{k} reser sig, nickar kort, säger inget. Bara en räddning.",
+            "{k} firar inte ens — gick åt rätt håll, det var allt.",
+        ],
+        "lugn": [
+            "{k} plockar bollen och ställer sig till rätta, helt oberörd.",
+            "{k} räddar den som om det vore vardagsmat. Det är det kanske.",
+        ],
+    },
+    # ───────── personlighet: kombinerade karaktärsporträtt (stora ögonblick) ─────────
+    "archetype": {
+        "villain": [
+            "{s} är den sortens spelare man älskar att hata — och han njuter av rollen.",
+            "Hela planen vet vad {s} är för typ. Otrevlig, opålitlig, och just nu mittpunkten.",
+            "{s} skulle bua på sig själv om han stod på andra sidan. Skurken i pjäsen.",
+        ],
+        "loose_cannon": [
+            "Ingen, allra minst {s} själv, vet vad som händer härnäst.",
+            "{s} är en tändsticka i en bensinmack — spännande, livsfarlig, oberäknelig.",
+            "Med {s} på pricken kan vad som helst hända, och brukar göra det.",
+        ],
+        "hothead": [
+            "{s} har redan kokat över en gång i dag. Det här gör inte saken lugnare.",
+            "Kort stubin, inga vänner kvar i kön — {s} spelar för sig själv.",
+            "{s} ser ut att vilja slåss med någon, och bollen duger tills vidare.",
+        ],
+        "gentleman": [
+            "{s}, lagets trevligaste man, gör det här med ett nästan generat leende.",
+            "Om någon förtjänar ögonblicket är det {s}. Alla vet det, till och med {k}.",
+            "{s} är så sympatisk att man nästan hejar på honom mot sin vilja.",
+        ],
+        "iceman": [
+            "{s} har inte ändrat puls sedan uppvärmningen. Iskall, rakryggad.",
+            "Det finns ingen press som biter på {s}. Han verkar närmast uttråkad.",
+            "{s} gör det svåra till en rutinsak. Lugnet självt.",
+        ],
+        "trickster": [
+            "{s} har redan en plan, och troligen en plan B som inte är helt ren.",
+            "Kallhamrad och listig — {s} spelar mest schack medan de andra sparkar boll.",
+            "{s} ler det där leendet som betyder att någon är på väg att luras.",
         ],
     },
 }

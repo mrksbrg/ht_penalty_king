@@ -111,7 +111,7 @@ const meter = n => `<span class="meter">${"●".repeat(Math.max(0,Math.min(5,n))
 const esc = s => String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 let S = { lang:"sv", squad:null, game:null, watchFrom:5, sort:"tsi", recorded:false, shot:null, result:null, byId:{} };
 const fmtTsi = n => Number(n).toLocaleString("sv-SE");
-const POS_ORDER = ["keeper","defender","wingback","winger","playmaker","forward"];
+const POS_ORDER = ["keeper","defender","wingback","winger","playmaker","forward","trainer","former"];
 let T = {};  // web UI strings for the active language (from engine.ui_strings)
 
 async function applyLang(code){ S.lang = code; await setLanguage(code); T = await uiStrings(); }
@@ -161,7 +161,7 @@ app.addEventListener("click", e=>{
   showCard(S.byId[Number(row.dataset.pid)], pr);
 });
 
-function header(){ return `<h1>PENALTY KING 🥅</h1>`; }
+function header(){ return `<h1>PENALTY KING ⚽</h1>`; }
 
 function screenImport(){
   app.innerHTML = header() + `

@@ -91,6 +91,7 @@ STRINGS = {
         "positions": {
             "keeper": "Keeper", "defender": "Defender", "wingback": "Wing back",
             "winger": "Winger", "playmaker": "Midfielder", "forward": "Forward",
+            "trainer": "Coach", "former": "Former player",
         },
         # highscore
         "highscore": "Highscore",
@@ -570,6 +571,133 @@ STRINGS = {
             "It wasn't fast, but it was crafty.",
             "Experience solved what the legs can no longer manage.",
             "Old is oldest, this time at least.",
+        ],
+    },
+
+    # ───────── personality: shooter reaction on a GOAL (every goal) ─────────
+    "trait_goal": {
+        "ohederlig": [
+            "{s} points at the sky as if it was all planned. It wasn't.",
+            "{s} celebrates a little too hard to be entirely sincere.",
+            "{s} claims afterwards he put it exactly where he called it. Nobody recalls him calling anything.",
+        ],
+        "otrevlig": [
+            "{s} celebrates right in {k}'s face. Not classy.",
+            "{s} scores and makes very sure everyone knows it, loudly.",
+            "No team celebration from {s} — just a look that says 'obviously'.",
+        ],
+        "temperamentsfull": [
+            "{s} roars the goal out as if it were a cup final.",
+            "{s} punches the air so hard he nearly falls over.",
+            "{s} erupts in celebration — it's only training, but still.",
+        ],
+        "sympatisk": [
+            "{s} almost apologises to {k} on the way back.",
+            "{s} celebrates quietly and gives {k} an encouraging pat.",
+            "{s} mostly looks relieved, and smiles apologetically at the goal.",
+        ],
+        "arlig": [
+            "{s} nods once, collects the ball and walks back. Nothing more to it.",
+            "No show from {s} — goal, and on we go.",
+            "{s} celebrates about like signing for a parcel. Matter-of-fact.",
+        ],
+        "lugn": [
+            "{s} scores without a flicker of expression.",
+            "{s} turns and walks back as if the outcome was never in doubt.",
+            "Ice-cold from {s}, already thinking about the next thing.",
+        ],
+    },
+    # ───────── personality: shooter reaction on a MISS (every miss) ─────────
+    "trait_miss": {
+        "ohederlig": [
+            "{s} immediately points at the spot, the grass, the wind — anything but his foot.",
+            "{s} pretends something distracted him right at the run-up.",
+            "{s} mutters that the surface was tampered with. It wasn't.",
+        ],
+        "otrevlig": [
+            "{s} kicks the ball basket and sourly blames {k}.",
+            "{s} snaps at anyone who dares look amused.",
+            "{s} leaves the spot without a word, but with plenty of attitude.",
+        ],
+        "temperamentsfull": [
+            "{s} has a minor meltdown and shouts at nothing in particular.",
+            "{s} throws his arms out and glares furiously at the sky.",
+            "{s} looks like he wants to kick the goal frame to pieces.",
+        ],
+        "sympatisk": [
+            "{s} smiles sheepishly and gives an apologetic shrug.",
+            "{s} all but apologises to the team for the miss.",
+            "{s} takes it with a kind little 'oops' and moves on.",
+        ],
+        "arlig": [
+            "{s} points at himself. All my fault, says the gesture.",
+            "{s} shakes his head at himself, no excuses.",
+            "{s} admits straight away that it was a wretched penalty.",
+        ],
+        "lugn": [
+            "{s} shrugs, unbothered. It happens.",
+            "{s} doesn't seem to care much. Next.",
+            "Not a wrinkle on {s}'s brow, despite the miss.",
+        ],
+    },
+    # ───────── personality: keeper reaction on a SAVE ─────────
+    "keeper_save_trait": {
+        "ohederlig": [
+            "{k} claims he read the shooter like a book. Possibly in hindsight.",
+            "{k} celebrates as if he'd planned every detail.",
+        ],
+        "otrevlig": [
+            "{k} gives the shooter a mocking round of applause. Quite unnecessary.",
+            "{k} says something short and nasty to the shooter on his way up.",
+        ],
+        "temperamentsfull": [
+            "{k} roars the save out straight at the shooter.",
+            "{k} pumps his fists as if he'd just won the lot.",
+        ],
+        "sympatisk": [
+            "{k} all but helps the shooter back to his feet afterwards.",
+            "{k} smiles apologetically, as if the save were an accident.",
+        ],
+        "arlig": [
+            "{k} gets up, nods once, says nothing. Just a save.",
+            "{k} doesn't even celebrate — went the right way, that's all.",
+        ],
+        "lugn": [
+            "{k} collects the ball and resets, entirely unmoved.",
+            "{k} saves it like it's an everyday thing. Maybe it is.",
+        ],
+    },
+    # ───────── personality: combined character portraits (big moments) ─────────
+    "archetype": {
+        "villain": [
+            "{s} is the kind of player you love to hate — and he relishes the role.",
+            "The whole pitch knows what {s} is: unpleasant, untrustworthy, and right now the centre of attention.",
+            "{s} would boo himself if he stood on the other side. The villain of the piece.",
+        ],
+        "loose_cannon": [
+            "Nobody, least of all {s} himself, knows what happens next.",
+            "{s} is a match in a petrol station — thrilling, dangerous, unpredictable.",
+            "With {s} on the spot anything can happen, and usually does.",
+        ],
+        "hothead": [
+            "{s} has already boiled over once today. This won't calm him down.",
+            "Short fuse, no friends left in the queue — {s} is playing for himself.",
+            "{s} looks like he wants to fight someone, and the ball will do for now.",
+        ],
+        "gentleman": [
+            "{s}, the nicest man in the squad, does this with an almost embarrassed smile.",
+            "If anyone deserves the moment it's {s}. Everyone knows it, even {k}.",
+            "{s} is so likeable you almost root for him against your will.",
+        ],
+        "iceman": [
+            "{s} hasn't changed his pulse since the warm-up. Ice-cold, straight-backed.",
+            "No pressure seems to touch {s}. He looks almost bored.",
+            "{s} makes the hard thing look routine. Calm itself.",
+        ],
+        "trickster": [
+            "{s} already has a plan, and probably a plan B that isn't entirely clean.",
+            "Cold-blooded and cunning — {s} is mostly playing chess while the others kick a ball.",
+            "{s} wears that smile that means someone is about to be fooled.",
         ],
     },
 }

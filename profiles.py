@@ -46,6 +46,7 @@ class PenaltyProfile:
     age_stage: str             # junior / prime / rutinerad / veteran / uråldrig
     specialty: str | None
     report_traits: list = field(default_factory=list)
+    archetype: str | None = None   # combined-personality persona (see personality_archetype)
 
 
 def _skills_norm(p: Player) -> list[float]:
@@ -62,16 +63,28 @@ def _general_class(p: Player) -> float:
     return 0.6 * max_skill + 0.4 * top3
 
 
-# Best-position order (used for both labelling and sorting): GK → DEF → … → FWD
+# Playable field positions, scored from skills. Order = GK → DEF → … → FWD.
 POSITIONS = ["keeper", "defender", "wingback", "winger", "playmaker", "forward"]
+# Full display/sort order, with the non-playing roles last.
+POSITION_ORDER = POSITIONS + ["trainer", "former"]
 
 
 def best_position(p: Player) -> str:
     """Approximate a player's best position from the seven skills (HO-style).
 
-    Hattrick doesn't store a position, so this is a heuristic: a weighted score per
-    position over the raw skills, highest wins (ties resolve to the earlier position
-    in POSITIONS, i.e. the more defensive one). Returns a key from POSITIONS."""
+    Non-playing entries are caught first: a coach (TrainerType set in the HRF) is a
+    'trainer', and an entry with no skills at all is a 'former' player — neither
+    should be mistaken for a keeper just because every skill is zero.
+
+    Otherwise: a weighted score per position over the raw skills, highest wins (ties
+    resolve to the earlier, more defensive position). Returns a key from
+    POSITION_ORDER."""
+    if p.trainer:
+        return "trainer"
+    skills = (p.keeper, p.defending, p.playmaking, p.winger,
+              p.passing, p.scoring, p.set_pieces)
+    if max(skills) <= 0:
+        return "former"
     scores = {
         "keeper": p.keeper,
         "defender": p.defending + 0.2 * p.set_pieces,
@@ -81,6 +94,29 @@ def best_position(p: Player) -> str:
         "forward": p.scoring + 0.3 * p.winger + 0.2 * p.playmaking,
     }
     return max(POSITIONS, key=lambda pos: scores[pos])
+
+
+def personality_archetype(p: Player) -> str | None:
+    """Combine the three personality axes into a single vivid persona, used to
+    colour the big-moment commentary. Needs two strong axes to fire; returns the
+    first matching archetype, else None for the unremarkable middle."""
+    unpleasant, agreeable = p.agreeability <= 1, p.agreeability >= 4
+    fiery, calm = p.aggressiveness >= 4, p.aggressiveness <= 1
+    dishonest, honest = p.honesty <= 1, p.honesty >= 4
+
+    if unpleasant and dishonest:
+        return "villain"        # nasty and a cheat
+    if fiery and dishonest:
+        return "loose_cannon"   # explosive and sly
+    if fiery and unpleasant:
+        return "hothead"        # short fuse, no charm
+    if agreeable and honest:
+        return "gentleman"      # the nice, straight one
+    if calm and (honest or agreeable):
+        return "iceman"         # unflappable, principled
+    if dishonest and calm:
+        return "trickster"      # cold-blooded con artist
+    return None
 
 
 def _age_stage(years: int) -> str:
@@ -210,6 +246,7 @@ def derive_profile(p: Player) -> PenaltyProfile:
         age_stage=stage,
         specialty=specialty,
         report_traits=traits,
+        archetype=personality_archetype(p),
     )
 
 

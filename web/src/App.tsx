@@ -32,7 +32,7 @@ export function App() {
 
   return (
     <div className="app">
-      <h1>PENALTY KING 🥅</h1>
+      <h1>PENALTY KING ⚽</h1>
       {phase === "boot" && <div className="spinner">{status}</div>}
 
       {phase === "import" && (

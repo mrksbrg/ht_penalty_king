@@ -127,6 +127,38 @@ def _aftermath(ev: Event, ctx: dict, rng: random.Random) -> str:
     return _fmt(_pick(rng, LANG.S[key]), ctx)
 
 
+# ───────────────────────── personality flavour ─────────────────────────
+# The three Hattrick personality axes barely move the odds, but here they carry
+# the colour: a reaction on every kick, plus a persona line for the big moments.
+
+_PERSONALITY_TRAITS = ["ohederlig", "otrevlig", "temperamentsfull",
+                       "sympatisk", "arlig", "lugn"]
+
+
+def _salient_personality(traits: list, rng: random.Random) -> str | None:
+    """Pick one personality trait the player actually has (random among them)."""
+    hits = [t for t in traits if t in _PERSONALITY_TRAITS]
+    return rng.choice(hits) if hits else None
+
+
+def _personality_reaction(pool_key: str, traits: list, ctx: dict,
+                          rng: random.Random) -> str:
+    """A reaction keyed by a salient personality trait — trait_goal/trait_miss for
+    the shooter, keeper_save_trait for the keeper. '' if no trait or no pool."""
+    trait = _salient_personality(traits, rng)
+    if not trait:
+        return ""
+    pool = LANG.S.get(pool_key, {}).get(trait)
+    return _fmt(_pick(rng, pool), ctx) if pool else ""
+
+
+def _archetype_line(profile: PenaltyProfile, ctx: dict, rng: random.Random) -> str:
+    """A combined-personality persona line for big moments. '' if no archetype."""
+    pool = (LANG.S.get("archetype", {}).get(profile.archetype)
+            if profile.archetype else None)
+    return _fmt(_pick(rng, pool), ctx) if pool else ""
+
+
 # ───────────────────────── result (v2) ─────────────────────────
 
 def result_text(ev: Event, sh: PenaltyProfile, kp: PenaltyProfile,
@@ -147,6 +179,9 @@ def result_text(ev: Event, sh: PenaltyProfile, kp: PenaltyProfile,
             kb = _opt(S["keeper_beaten"], ev.keeper_response, ctx, rng)
             if kb:
                 lines.append(kb)
+        pr = _personality_reaction("trait_goal", sh.report_traits, ctx, rng)
+        if pr:
+            lines.append(pr)
         if ev.keeper_eliminated:
             lines.append(_fmt(ui["fifth_prick"], ctx))
             if ev.new_keeper_id is not None:
@@ -159,6 +194,9 @@ def result_text(ev: Event, sh: PenaltyProfile, kp: PenaltyProfile,
         ks = _opt(S["keeper_save"], ev.keeper_response, ctx, rng)
         if ks:
             lines.append(ks)
+        kpr = _personality_reaction("keeper_save_trait", kp.report_traits, ctx, rng)
+        if kpr:
+            lines.append(kpr)
         lines.append(_aftermath(ev, ctx, rng))
 
     else:  # miss
@@ -166,9 +204,15 @@ def result_text(ev: Event, sh: PenaltyProfile, kp: PenaltyProfile,
         em = _opt(S["exec_miss"], ev.quality, ctx, rng)
         if em:
             lines.append(em)
+        pr = _personality_reaction("trait_miss", sh.report_traits, ctx, rng)
+        if pr:
+            lines.append(pr)
         lines.append(_aftermath(ev, ctx, rng))
 
     if big:
+        arch = _archetype_line(sh, ctx, rng)
+        if arch:
+            lines.append(arch)
         barb = _barb(ev, sh, ctx, rng)
         if barb:
             lines.append(barb)

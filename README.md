@@ -1,4 +1,6 @@
-# Penalty King 🥅
+[![CodeScene Average Code Health](https://codescene.io/projects/81509/status-badges/average-code-health)](https://codescene.io/projects/81509)
+
+# Penalty King
 
 A spectator simulation of the Swedish schoolyard penalty game **"fem prickar"**,
 played by your Hattrick squad straight from the latest HRF export.

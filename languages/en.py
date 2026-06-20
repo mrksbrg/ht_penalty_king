@@ -79,6 +79,31 @@ STRINGS = {
         "survived_word": "survived",
         "play_again": "Play again",
         "last_team": "Last team",
+        # squad list: TSI, sorting, positions
+        "tsi_word": "TSI",
+        "sort_label": "Sort:",
+        "matches_word": "matches",
+        "since_word": "since",
+        "sort": {
+            "tsi": "TSI", "position": "Position", "age": "Age",
+            "name": "Name", "matches": "Matches",
+        },
+        "positions": {
+            "keeper": "Keeper", "defender": "Defender", "wingback": "Wing back",
+            "winger": "Winger", "playmaker": "Midfielder", "forward": "Forward",
+        },
+        # highscore
+        "highscore": "Highscore",
+        "highscore_heading": "Highscore — most wins",
+        "wins_word": "wins",
+        "wins_word_one": "win",
+        "games_played": "games",
+        "games_played_one": "game",
+        "no_highscore": "No games recorded yet. Play a match first!",
+        "back": "Back",
+        "clear": "Clear",
+        "clear_confirm": "Clear the entire highscore?",
+        "export": "Export",
         "card": {
             "close": "Close", "years": "yrs",
             "skills": {

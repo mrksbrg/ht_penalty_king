@@ -6,6 +6,8 @@ export interface Skills {
   passing: number; scoring: number; set_pieces: number;
 }
 
+export interface Nationality { id: number; name: string; flag: string }
+
 export interface Player {
   id: number;
   name: string;
@@ -13,7 +15,12 @@ export interface Player {
   skills: Skills;
   stamina: number; form: number; experience: number;
   leadership: number; loyalty: number;
-  salary: number; market_value: number;
+  salary: number;
+  tsi: number;                   // Hattrick TSI (the HRF 'mkt' field)
+  best_position: string;         // key: keeper|defender|wingback|winger|playmaker|forward
+  nationality: Nationality;
+  goals: number;                 // goals for the current club
+  arrival_year: number | null;   // year they joined the club
   specialty: string | null;
   personality: { agreeability: string; aggressiveness: string; honesty: string };
   homegrown: boolean; matches: number;

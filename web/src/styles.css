@@ -95,3 +95,20 @@ button.ghost {
 .langrow { display: flex; gap: 8px; margin: 8px 0; }
 .langrow button.active { background: var(--panel-2); border-color: var(--accent); }
 .clickable { cursor: pointer; }
+
+/* sort control above the squad list */
+.sortbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 2px 8px; }
+.sortbar .tag { margin-right: 2px; }
+.sortbar button.ghost { padding: 6px 10px; font-size: 0.8rem; border-radius: 8px; }
+.sortbar button.ghost.active { background: var(--panel-2); border-color: var(--accent); color: var(--text); }
+
+/* two-line player row in the squad list */
+.player-row {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 9px 4px; border-bottom: 1px solid var(--line);
+}
+.player-row:last-child { border-bottom: none; }
+.player-row-top { display: flex; align-items: baseline; gap: 10px; }
+.player-row-top .name { flex: 1; }
+.player-row-top .value { color: var(--text); font-variant-numeric: tabular-nums; font-size: 0.9rem; }
+.player-row-meta { color: var(--muted); font-size: 0.78rem; }

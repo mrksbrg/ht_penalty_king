@@ -3,12 +3,14 @@
 // state. Because the actual Python play_game runs here, a given HRF + seed yields
 // the SAME outcome as the CLI.
 
-import { loadPyodide, type PyodideInterface } from "pyodide";
+import { loadPyodide, version as pyodideVersion, type PyodideInterface } from "pyodide";
 import type {
   LoadedSquad, GameHandle, FastForward, CurrentShot, ShotResult, Row, RankRow, StatRow,
 } from "./types";
 
-const PYODIDE_CDN = "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/";
+// Derive the CDN URL from the installed package version so the JS loader and the
+// WASM runtime can never drift apart (a fresh npm install may bump the patch).
+const PYODIDE_CDN = `https://cdn.jsdelivr.net/pyodide/v${pyodideVersion}/full/`;
 const BASE = import.meta.env.BASE_URL || "/";
 
 let pyodide: PyodideInterface | null = null;

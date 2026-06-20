@@ -103,6 +103,31 @@ STRINGS = {
         "survived_word": "överlevda",
         "play_again": "Spela igen",
         "last_team": "Senaste lag",
+        # squad list: TSI, sorting, positions
+        "tsi_word": "TSI",
+        "sort_label": "Sortera:",
+        "matches_word": "matcher",
+        "since_word": "sedan",
+        "sort": {
+            "tsi": "TSI", "position": "Position", "age": "Ålder",
+            "name": "Namn", "matches": "Matcher",
+        },
+        "positions": {
+            "keeper": "Målvakt", "defender": "Försvarare", "wingback": "Ytterback",
+            "winger": "Ytter", "playmaker": "Mittfältare", "forward": "Anfallare",
+        },
+        # highscore (topplista)
+        "highscore": "Topplista",
+        "highscore_heading": "Topplista — flest vinster",
+        "wins_word": "vinster",
+        "wins_word_one": "vinst",
+        "games_played": "spel",
+        "games_played_one": "spel",
+        "no_highscore": "Inga spel registrerade än. Spela ett parti först!",
+        "back": "Tillbaka",
+        "clear": "Rensa",
+        "clear_confirm": "Rensa hela topplistan?",
+        "export": "Exportera",
         "card": {
             "close": "Stäng", "years": "år",
             "skills": {

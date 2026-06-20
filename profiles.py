@@ -62,6 +62,27 @@ def _general_class(p: Player) -> float:
     return 0.6 * max_skill + 0.4 * top3
 
 
+# Best-position order (used for both labelling and sorting): GK → DEF → … → FWD
+POSITIONS = ["keeper", "defender", "wingback", "winger", "playmaker", "forward"]
+
+
+def best_position(p: Player) -> str:
+    """Approximate a player's best position from the seven skills (HO-style).
+
+    Hattrick doesn't store a position, so this is a heuristic: a weighted score per
+    position over the raw skills, highest wins (ties resolve to the earlier position
+    in POSITIONS, i.e. the more defensive one). Returns a key from POSITIONS."""
+    scores = {
+        "keeper": p.keeper,
+        "defender": p.defending + 0.2 * p.set_pieces,
+        "wingback": 0.7 * p.defending + 0.6 * p.winger,
+        "winger": p.winger + 0.3 * p.passing + 0.2 * p.scoring,
+        "playmaker": p.playmaking + 0.5 * p.passing,
+        "forward": p.scoring + 0.3 * p.winger + 0.2 * p.playmaking,
+    }
+    return max(POSITIONS, key=lambda pos: scores[pos])
+
+
 def _age_stage(years: int) -> str:
     if years <= 21:
         return "junior"

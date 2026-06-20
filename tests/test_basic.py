@@ -22,6 +22,7 @@ _DEFAULTS = dict(
     age_years=26, age_days=0, keeper=3, defending=4, playmaking=4, winger=3,
     passing=4, scoring=3, set_pieces=4, stamina=7, form=5, experience=4,
     leadership=5, loyalty=10, salary=30000, market_value=10000,
+    goals_team=0, arrival_date="2023-01-01", country_id=1,
     speciality=0, speciality_label="", agreeability=2, agreeability_label="",
     aggressiveness=2, aggressiveness_label="", honesty=3, honesty_label="",
     warnings=0, homegrown=False, matches_team=50, injury=-1,

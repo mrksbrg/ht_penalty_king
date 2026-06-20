@@ -50,7 +50,10 @@ class Player:
     loyalty: int       # loy
     # status
     salary: int        # sal
-    market_value: int  # mkt
+    market_value: int  # mkt (this field is the Hattrick TSI)
+    goals_team: int    # GoalsCurrentTeam
+    arrival_date: str  # arrivaldate (YYYY-MM-DD; when they joined this club)
+    country_id: int    # CountryID (Hattrick league/country id)
     # personality (code + Swedish label)
     speciality: int
     speciality_label: str
@@ -158,6 +161,9 @@ def parse_players(path: str) -> list[Player]:
                 loyalty=gi("loy"),
                 salary=gi("sal"),
                 market_value=gi("mkt"),
+                goals_team=gi("GoalsCurrentTeam"),
+                arrival_date=gs("arrivaldate")[:10],
+                country_id=gi("CountryID"),
                 speciality=gi("speciality"),
                 speciality_label=gs("specialityLabel"),
                 agreeability=gi("gentleness"),

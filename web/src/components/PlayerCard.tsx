@@ -5,16 +5,30 @@ const SKILL_LABELS: Record<string, string> = {
   winger: "Ytter", passing: "Passning", scoring: "Målskytte", set_pieces: "Fasta",
 };
 
+const POSITION_LABEL: Record<string, string> = {
+  keeper: "Målvakt", defender: "Försvarare", wingback: "Ytterback",
+  winger: "Ytter", playmaker: "Mittfältare", forward: "Anfallare",
+};
+
+const fmtValue = (v: number) => v.toLocaleString("sv-SE").replace(/,/g, " ");
+
 export function PlayerCard({ player, onClose }: { player: Player; onClose: () => void }) {
   return (
     <div className="panel" style={{ borderColor: "var(--accent)" }}>
       <div className="row" style={{ borderBottom: "1px solid var(--line)" }}>
-        <b className="name">{player.name}</b>
+        <b className="name">{player.nationality.flag} {player.name}</b>
         <button className="ghost" onClick={onClose}>Stäng</button>
       </div>
       <p className="sub">
-        {player.age} år{player.specialty ? ` · ${player.specialty}` : ""}
+        {POSITION_LABEL[player.best_position] ?? player.best_position}
+        {" · "}{player.age} år
+        {player.specialty ? ` · ${player.specialty}` : ""}
         {player.homegrown ? " · egen produkt" : ""}
+      </p>
+      <p className="sub" style={{ marginTop: -6 }}>
+        TSI {fmtValue(player.tsi)} · {player.nationality.name}
+        {" · "}{player.matches} matcher · {player.goals} mål
+        {player.arrival_year ? ` · vid klubben sedan ${player.arrival_year}` : ""}
       </p>
       <div className="skillgrid">
         {Object.entries(player.skills).map(([k, v]) => (

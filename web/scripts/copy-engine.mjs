@@ -13,8 +13,9 @@ const outRoot = path.resolve(here, "..", "public", "engine", "ht_penalty_king");
 
 // Modules the engine needs (game logic stays Python, outside React).
 const MODULES = [
-  "__init__.py", "config.py", "hrf_parser.py", "profiles.py", "penalty.py",
-  "game.py", "report.py", "narrator.py", "i18n.py", "montecarlo.py", "engine.py",
+  "__init__.py", "config.py", "countries.py", "hrf_parser.py", "profiles.py",
+  "penalty.py", "game.py", "report.py", "narrator.py", "i18n.py",
+  "montecarlo.py", "engine.py",
 ];
 const LANG_DIR = "languages";
 

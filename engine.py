@@ -19,9 +19,11 @@ import random
 from dataclasses import dataclass
 
 from .config import Config
+from .countries import nationality
 from .game import GameResult, play_game
 from .hrf_parser import Player, parse_players, team_name
 from .i18n import LANG
+from .profiles import best_position
 from . import report
 
 # ── registries (handles keep JS away from internal objects) ──
@@ -64,7 +66,12 @@ def serialize_player(p: Player) -> dict:
         },
         "stamina": p.stamina, "form": p.form, "experience": p.experience,
         "leadership": p.leadership, "loyalty": p.loyalty,
-        "salary": p.salary, "market_value": p.market_value,
+        "salary": p.salary,
+        "tsi": p.market_value,                    # 'mkt' in the HRF is the Hattrick TSI
+        "best_position": best_position(p),
+        "nationality": nationality(p.country_id),
+        "goals": p.goals_team,
+        "arrival_year": int(p.arrival_date[:4]) if p.arrival_date[:4].isdigit() else None,
         "specialty": p.speciality_label or None,
         "personality": {
             "agreeability": p.agreeability_label,

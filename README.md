@@ -12,18 +12,43 @@ player standing wins. The game fast-forwards through the early rounds, then lets
 you watch the final survivors fight it out shot by shot, with dry, club-internal
 Swedish drama for every kick.
 
-## Run it
+## Run it (CLI)
 
-From the `Hattrick Organizer` folder:
+Run as a module from the folder that *contains* the `ht_penalty_king` package
+(e.g. `Documents/Code`). A ready-to-play squad ships in `example/`:
 
 ```bash
-python -m penalty_king                 # newest HRF, watch the final 10, press Enter per shot
-python -m penalty_king --watch-from 6  # only watch the final six
-python -m penalty_king --delay 1.0     # auto-play, 1 second between shots
-python -m penalty_king --seed 42       # replay an identical game
-python -m penalty_king --stats 5000    # skip the show; print win odds instead
-python -m penalty_king.tests.test_basic   # run the checks
+python -m ht_penalty_king --hrf ht_penalty_king/example/103247-2026-06-20.hrf
+python -m ht_penalty_king                 # newest HRF in --hrf-dir, press Enter per shot
+python -m ht_penalty_king --watch-from 6  # only watch the final six
+python -m ht_penalty_king --delay 1.0     # auto-play, 1 second between shots
+python -m ht_penalty_king --seed 42       # replay an identical game
+python -m ht_penalty_king --stats 5000    # skip the show; print win odds instead
+python -m ht_penalty_king.tests.test_basic   # run the checks
 ```
+
+## Run it (web)
+
+The same engine runs in the browser via [Pyodide](https://pyodide.org), so a given
+HRF + seed produces identical outcomes in the terminal and the browser.
+
+**Zero-install** — serve the package root and open `play.html` (a self-contained
+single file), then upload an HRF (`example/103247-2026-06-20.hrf` works):
+
+```bash
+python -m http.server 8000   # from inside ht_penalty_king/
+# open http://localhost:8000/play.html
+```
+
+**Dev app** — the React/Vite frontend lives in `web/` (see [web/README.md](web/README.md)):
+
+```bash
+cd web && npm install && npm run dev
+```
+
+Both must be served over http (not opened as a `file://`), since the page fetches
+the Python engine. The browser UI only calls the JSON API in `engine.py` — no game
+logic is duplicated in TypeScript.
 
 ### Options
 
@@ -93,17 +118,21 @@ full 2–4 sentence report. Tune everything in `config.py`.
 ## Layout
 
 ```
-fem_prickar/
-├── config.py        # tunable xG knobs + pacing
+ht_penalty_king/
+├── config.py        # tunable v2 engine knobs + pacing
 ├── hrf_parser.py    # find + parse newest HRF -> Player list (all drama fields)
 ├── profiles.py      # derive each player's penalty profile + report tags
 ├── penalty.py       # v2 engine: shot type → keeper read → quality → outcome
 ├── game.py          # the state machine -> GameResult
 ├── report.py        # tag-driven drama generator (language-agnostic logic)
 ├── narrator.py      # scoreboard, recap, champion banner
+├── engine.py        # JSON API shared by the CLI and the web frontend
 ├── i18n.py          # active-language holder + skill-word lookup
 ├── languages/       # sv.py (default), en.py — editable string packs
 ├── montecarlo.py    # optional --stats win-odds mode
 ├── main.py          # CLI entry point + pacing
+├── play.html        # self-contained web build (Pyodide, no npm)
+├── example/         # a bundled HRF so it runs out of the box
+├── web/             # React/Vite frontend (runs the engine via Pyodide)
 └── tests/           # invariant checks
 ```

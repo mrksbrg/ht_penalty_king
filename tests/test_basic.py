@@ -1,5 +1,5 @@
 """Invariant checks (engine v2). Run with:
-    python -m fem_prickar.tests.test_basic
+    python -m ht_penalty_king.tests.test_basic
 """
 
 from __future__ import annotations
@@ -13,9 +13,9 @@ from ..hrf_parser import Player, find_latest_hrf, parse_players
 from ..penalty import DuelContext, QUALITIES, SHOT_TYPES, simulate_penalty
 from ..profiles import derive_profile
 
+# The bundled example HRF ships in the repo, so the real-file check always runs.
 _HRF_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    "HO", "hrf",
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "example"
 )
 
 _DEFAULTS = dict(

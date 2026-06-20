@@ -120,6 +120,13 @@ def _opt(table: dict, key: str, ctx: dict, rng: random.Random) -> str:
     return _fmt(_pick(rng, pool), ctx) if pool else ""
 
 
+def _aftermath(ev: Event, ctx: dict, rng: random.Random) -> str:
+    """The line where the failed keeper leaves goal and the shooter takes over.
+    Match point (weaker foot) draws from a 'survives' pool, otherwise 'escapes'."""
+    key = "keeper_survives" if ev.weaker_foot else "keeper_escapes"
+    return _fmt(_pick(rng, LANG.S[key]), ctx)
+
+
 # ───────────────────────── result (v2) ─────────────────────────
 
 def result_text(ev: Event, sh: PenaltyProfile, kp: PenaltyProfile,
@@ -152,20 +159,14 @@ def result_text(ev: Event, sh: PenaltyProfile, kp: PenaltyProfile,
         ks = _opt(S["keeper_save"], ev.keeper_response, ctx, rng)
         if ks:
             lines.append(ks)
-        if ev.weaker_foot:
-            lines.append(_fmt(ui["keeper_survives"], ctx))
-        else:
-            lines.append(_fmt(ui["keeper_escapes"], ctx))
+        lines.append(_aftermath(ev, ctx, rng))
 
     else:  # miss
         lines = ["", ui["banner_miss"], "", attempt]
         em = _opt(S["exec_miss"], ev.quality, ctx, rng)
         if em:
             lines.append(em)
-        if ev.weaker_foot:
-            lines.append(_fmt(ui["keeper_survives"], ctx))
-        else:
-            lines.append(_fmt(ui["keeper_escapes"], ctx))
+        lines.append(_aftermath(ev, ctx, rng))
 
     if big:
         barb = _barb(ev, sh, ctx, rng)

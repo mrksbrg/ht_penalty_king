@@ -8,6 +8,30 @@ export interface Skills {
 
 export interface Nationality { id: number; name: string; flag: string }
 
+// The web UI chrome for the active language (engine.ui_strings() = STRINGS['web']).
+export interface UiStrings {
+  intro: string; choose_file: string; file_error: string;
+  players_word: string; scoring_abbr: string; keeper_abbr: string;
+  watch_from: string; remaining_word: string; start: string;
+  warming_up: string; dust_settles: string; eliminated_word: string;
+  no_eliminations: string; still_in: string; see_endgame: string;
+  in_goal: string; shooting: string; in_queue: string;
+  take_kick: string; next_shot: string; see_winner: string;
+  outcome_goal: string; outcome_save: string; outcome_miss: string;
+  last_standing: string; ranking_heading: string; stats_heading: string;
+  prickar_word: string; goals_word: string; saves_word: string;
+  survived_word: string; play_again: string; last_team: string;
+  tsi_word: string; sort_label: string; matches_word: string; since_word: string;
+  sort: Record<string, string>;
+  positions: Record<string, string>;
+  highscore: string; highscore_heading: string;
+  wins_word: string; wins_word_one: string;
+  games_played: string; games_played_one: string;
+  no_highscore: string; back: string; clear: string; clear_confirm: string;
+  export: string;
+  card: { close: string; years: string; homegrown: string; skills: Record<string, string> };
+}
+
 export interface Player {
   id: number;
   name: string;

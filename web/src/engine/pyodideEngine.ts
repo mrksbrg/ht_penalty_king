@@ -6,6 +6,7 @@
 import { loadPyodide, version as pyodideVersion, type PyodideInterface } from "pyodide";
 import type {
   LoadedSquad, GameHandle, FastForward, CurrentShot, ShotResult, Row, RankRow, StatRow,
+  UiStrings,
 } from "./types";
 
 // Derive the CDN URL from the installed package version so the JS loader and the
@@ -70,6 +71,9 @@ async function call<T>(expr: string): Promise<T> {
 export function setLanguage(code: string): Promise<unknown> {
   return call(`eng.set_language(${JSON.stringify(code)}) or None`);
 }
+
+/** The web UI chrome (labels, buttons) for the currently active language. */
+export const uiStrings = () => call<UiStrings>("eng.ui_strings()");
 
 /** Parse an uploaded HRF file (its raw text) and return the squad. */
 export async function loadHrf(text: string): Promise<LoadedSquad> {

@@ -10,9 +10,15 @@
     "dev": "vite",
     "prebuild": "npm run copy-engine",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "android:build": "npm run build && npx cap sync",
+    "android:open": "npx cap open android",
+    "android:run": "npm run android:build && npx cap run android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
     "pyodide": "^0.26.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

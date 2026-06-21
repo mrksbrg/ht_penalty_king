@@ -1,24 +1,13 @@
 import { useMemo, useState } from "react";
 import * as engine from "../engine/pyodideEngine";
-import type { LoadedSquad, Player } from "../engine/types";
+import type { LoadedSquad, Player, UiStrings } from "../engine/types";
 import { PlayerCard } from "../components/PlayerCard";
 
-// Swedish position labels + a defensive→attacking order used for sorting.
+// Defensive→attacking order used for sorting (labels come from the language pack).
 const POSITION_ORDER = ["keeper", "defender", "wingback", "winger", "playmaker", "forward", "trainer", "former"];
-const POSITION_LABEL: Record<string, string> = {
-  keeper: "Målvakt", defender: "Försvarare", wingback: "Ytterback",
-  winger: "Ytter", playmaker: "Mittfältare", forward: "Anfallare",
-  trainer: "Tränare", former: "F.d. spelare",
-};
 
 type SortKey = "tsi" | "position" | "age" | "name" | "matches";
-const SORTS: { key: SortKey; label: string }[] = [
-  { key: "tsi", label: "TSI" },
-  { key: "position", label: "Position" },
-  { key: "age", label: "Ålder" },
-  { key: "name", label: "Namn" },
-  { key: "matches", label: "Matcher" },
-];
+const SORT_KEYS: SortKey[] = ["tsi", "position", "age", "name", "matches"];
 
 const fmtValue = (v: number) => v.toLocaleString("sv-SE").replace(/,/g, " ");
 
@@ -44,13 +33,14 @@ function sortPlayers(players: Player[], key: SortKey): Player[] {
 }
 
 export function ImportScreen(props: {
+  ui: UiStrings;
   lang: string;
   onLang: (l: string) => void;
   squad: LoadedSquad | null;
   onSquad: (s: LoadedSquad) => void;
   onStart: (watchFrom: number, seed: number | null) => void;
 }) {
-  const { lang, onLang, squad, onSquad, onStart } = props;
+  const { ui, lang, onLang, squad, onSquad, onStart } = props;
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [selected, setSelected] = useState<Player | null>(null);
@@ -71,7 +61,7 @@ export function ImportScreen(props: {
       const loaded = await engine.loadHrf(text);
       onSquad(loaded);
     } catch (ex) {
-      setErr("Kunde inte läsa HRF-filen: " + (ex as Error).message);
+      setErr(ui.file_error + (ex as Error).message);
     } finally {
       setBusy(false);
     }
@@ -79,7 +69,7 @@ export function ImportScreen(props: {
 
   return (
     <>
-      <p className="sub">Importera ditt Hattrick-lag och spela Fem Prickar.</p>
+      <p className="sub">{ui.intro}</p>
 
       <div className="langrow">
         {["sv", "en"].map((l) => (
@@ -89,23 +79,25 @@ export function ImportScreen(props: {
       </div>
 
       <div className="panel">
+        {/* No `accept` filter: Android's file picker greys out .hrf (it has no
+            registered MIME type), so we accept any file and validate on parse. */}
         <label className="ghost clickable" style={{ display: "block", textAlign: "center", padding: 14 }}>
-          {busy ? "Läser..." : "Välj HRF-fil"}
-          <input type="file" accept=".hrf,text/plain" hidden onChange={onFile} disabled={busy} />
+          {busy ? "…" : ui.choose_file}
+          <input type="file" hidden onChange={onFile} disabled={busy} />
         </label>
         {err && <p className="sub" style={{ color: "var(--miss)" }}>{err}</p>}
       </div>
 
       {squad && (
         <>
-          <h2>{squad.team} — {squad.count} spelare</h2>
+          <h2>{squad.team} — {squad.count} {ui.players_word}</h2>
 
           <div className="sortbar">
-            <span className="tag">Sortera:</span>
-            {SORTS.map((s) => (
-              <button key={s.key}
-                      className={"ghost" + (sort === s.key ? " active" : "")}
-                      onClick={() => setSort(s.key)}>{s.label}</button>
+            <span className="tag">{ui.sort_label}</span>
+            {SORT_KEYS.map((key) => (
+              <button key={key}
+                      className={"ghost" + (sort === key ? " active" : "")}
+                      onClick={() => setSort(key)}>{ui.sort[key]}</button>
             ))}
           </div>
 
@@ -114,14 +106,14 @@ export function ImportScreen(props: {
               <div key={p.id} className="player-row clickable" onClick={() => setSelected(p)}>
                 <div className="player-row-top">
                   <span className="name">{p.nationality.flag} {p.name}</span>
-                  <span className="value">{fmtValue(p.tsi)} TSI</span>
+                  <span className="value">{fmtValue(p.tsi)} {ui.tsi_word}</span>
                 </div>
                 <div className="player-row-meta">
-                  {POSITION_LABEL[p.best_position] ?? p.best_position}
-                  {" · "}{p.age} år
-                  {" · "}{p.matches} matcher
-                  {" · "}{p.goals} mål
-                  {p.arrival_year ? ` · sedan ${p.arrival_year}` : ""}
+                  {ui.positions[p.best_position] ?? p.best_position}
+                  {" · "}{p.age} {ui.card.years}
+                  {" · "}{p.matches} {ui.matches_word}
+                  {" · "}{p.goals} {ui.goals_word}
+                  {p.arrival_year ? ` · ${ui.since_word} ${p.arrival_year}` : ""}
                 </div>
               </div>
             ))}
@@ -129,21 +121,21 @@ export function ImportScreen(props: {
 
           <div className="panel">
             <div className="row" style={{ borderBottom: "none" }}>
-              <span className="name">Visa live från</span>
+              <span className="name">{ui.watch_from}</span>
               <input type="number" min={2} max={squad.count} value={watchFrom}
                      onChange={(e) => setWatchFrom(Number(e.target.value))}
                      style={{ width: 64 }} />
-              <span className="tag">kvar</span>
+              <span className="tag">{ui.remaining_word}</span>
             </div>
           </div>
         </>
       )}
 
-      {selected && <PlayerCard player={selected} onClose={() => setSelected(null)} />}
+      {selected && <PlayerCard ui={ui} player={selected} onClose={() => setSelected(null)} />}
 
       <button className="primary" disabled={!squad}
               onClick={() => onStart(watchFrom, null)}>
-        Starta spelet
+        {ui.start}
       </button>
     </>
   );

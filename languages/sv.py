@@ -130,7 +130,7 @@ STRINGS = {
         "clear_confirm": "Rensa hela topplistan?",
         "export": "Exportera",
         "card": {
-            "close": "Stäng", "years": "år",
+            "close": "Stäng", "years": "år", "homegrown": "egen produkt",
             "skills": {
                 "keeper": "Målvakt", "defending": "Försvar", "playmaking": "Spelfördelning",
                 "winger": "Ytter", "passing": "Passning", "scoring": "Målskytte",

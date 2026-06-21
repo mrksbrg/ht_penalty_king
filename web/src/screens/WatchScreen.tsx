@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import * as engine from "../engine/pyodideEngine";
-import type { CurrentShot, ShotResult } from "../engine/types";
+import type { CurrentShot, ShotResult, UiStrings } from "../engine/types";
 import { PrickMeter } from "../components/PrickMeter";
 
 // Screen 3: one kick at a time. Show the run-up, tap to take the kick, reveal the
 // result. The suspense lives on the button — exactly like the CLI.
-export function WatchScreen({ game, onFinished }: { game: number; onFinished: () => void }) {
+export function WatchScreen(
+  { ui, game, onFinished }: { ui: UiStrings; game: number; onFinished: () => void },
+) {
   const [shot, setShot] = useState<CurrentShot | null>(null);
   const [result, setResult] = useState<ShotResult | null>(null);
   const [busy, setBusy] = useState(false);
@@ -30,24 +32,24 @@ export function WatchScreen({ game, onFinished }: { game: number; onFinished: ()
 
   return (
     <>
-      <h2>{shot.alive} kvar</h2>
+      <h2>{shot.alive} {ui.remaining_word}</h2>
 
       <div className="panel">
         <div className="row keeper">
           <span className="name">🧤 {shot.keeper.name}</span>
           <PrickMeter prickar={shot.keeper.prickar} />
-          <span className="tag">i mål</span>
+          <span className="tag">{ui.in_goal}</span>
         </div>
         <div className="row shooter">
           <span className="name">⚽ {shot.shooter.name}</span>
           <PrickMeter prickar={shot.shooter.prickar} />
-          <span className="tag">skjuter</span>
+          <span className="tag">{ui.shooting}</span>
         </div>
       </div>
 
       {shot.queue.length > 0 && (
         <>
-          <p className="sub" style={{ margin: "2px 2px 6px" }}>I kön ({shot.queue.length}):</p>
+          <p className="sub" style={{ margin: "2px 2px 6px" }}>{ui.in_queue} ({shot.queue.length}):</p>
           <div className="panel">
             {shot.queue.map((q) => (
               <div key={q.id} className="row">
@@ -64,7 +66,8 @@ export function WatchScreen({ game, onFinished }: { game: number; onFinished: ()
       {result && (
         <div className="panel">
           <div className={"banner " + result.outcome}>
-            {result.outcome === "goal" ? "MÅL" : result.outcome === "save" ? "RÄDDNING" : "MISS"}
+            {result.outcome === "goal" ? ui.outcome_goal
+              : result.outcome === "save" ? ui.outcome_save : ui.outcome_miss}
           </div>
           <p className="commentary">{result.commentary}</p>
         </div>
@@ -72,12 +75,12 @@ export function WatchScreen({ game, onFinished }: { game: number; onFinished: ()
 
       {!result ? (
         <button className="primary" disabled={busy} onClick={takeKick}>
-          {busy ? "..." : "⚽ Lägg straffen"}
+          {busy ? "..." : ui.take_kick}
         </button>
       ) : result.finished ? (
-        <button className="primary" onClick={onFinished}>Se vinnaren 🏆</button>
+        <button className="primary" onClick={onFinished}>{ui.see_winner}</button>
       ) : (
-        <button className="primary" onClick={loadNext}>Nästa straff</button>
+        <button className="primary" onClick={loadNext}>{ui.next_shot}</button>
       )}
     </>
   );

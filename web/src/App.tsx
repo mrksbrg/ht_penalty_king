@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as engine from "./engine/pyodideEngine";
-import type { LoadedSquad, GameHandle } from "./engine/types";
+import type { LoadedSquad, GameHandle, UiStrings } from "./engine/types";
 import { ImportScreen } from "./screens/ImportScreen";
 import { FastForwardScreen } from "./screens/FastForwardScreen";
 import { WatchScreen } from "./screens/WatchScreen";
@@ -14,13 +14,32 @@ export function App() {
   const [squad, setSquad] = useState<LoadedSquad | null>(null);
   const [game, setGame] = useState<GameHandle | null>(null);
   const [lang, setLang] = useState("sv");
+  const [ready, setReady] = useState(false);
+  const [ui, setUi] = useState<UiStrings | null>(null);
 
   useEffect(() => {
     engine
       .initEngine(setStatus)
-      .then(() => setPhase("import"))
+      .then(() => setReady(true))
       .catch((e) => setStatus("Fel vid start: " + e.message));
   }, []);
+
+  // Apply the chosen language in the engine and pull the matching UI chrome.
+  // Runs on first ready and on every language switch — this is what makes the
+  // whole interface (not just the match commentary) react to the SV/EN toggle.
+  useEffect(() => {
+    if (!ready) return;
+    let cancelled = false;
+    (async () => {
+      await engine.setLanguage(lang);
+      const u = await engine.uiStrings();
+      if (!cancelled) {
+        setUi(u);
+        setPhase((p) => (p === "boot" ? "import" : p));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [ready, lang]);
 
   async function startGame(watchFrom: number, seed: number | null) {
     if (!squad) return;
@@ -33,10 +52,11 @@ export function App() {
   return (
     <div className="app">
       <h1>PENALTY KING ⚽</h1>
-      {phase === "boot" && <div className="spinner">{status}</div>}
+      {(phase === "boot" || !ui) && <div className="spinner">{status}</div>}
 
-      {phase === "import" && (
+      {phase === "import" && ui && (
         <ImportScreen
+          ui={ui}
           lang={lang}
           onLang={setLang}
           squad={squad}
@@ -45,20 +65,22 @@ export function App() {
         />
       )}
 
-      {phase === "fastforward" && game && squad && (
+      {phase === "fastforward" && game && squad && ui && (
         <FastForwardScreen
+          ui={ui}
           game={game.game}
           team={squad.team}
           onDone={() => setPhase("watch")}
         />
       )}
 
-      {phase === "watch" && game && (
-        <WatchScreen game={game.game} onFinished={() => setPhase("winner")} />
+      {phase === "watch" && game && ui && (
+        <WatchScreen ui={ui} game={game.game} onFinished={() => setPhase("winner")} />
       )}
 
-      {phase === "winner" && game && (
+      {phase === "winner" && game && ui && (
         <WinnerScreen
+          ui={ui}
           game={game.game}
           onReplay={() => {
             setGame(null);

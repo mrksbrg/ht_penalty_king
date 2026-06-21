@@ -106,7 +106,7 @@ STRINGS = {
         "clear_confirm": "Clear the entire highscore?",
         "export": "Export",
         "card": {
-            "close": "Close", "years": "yrs",
+            "close": "Close", "years": "yrs", "homegrown": "homegrown",
             "skills": {
                 "keeper": "Keeper", "defending": "Defending", "playmaking": "Playmaking",
                 "winger": "Winger", "passing": "Passing", "scoring": "Scoring",

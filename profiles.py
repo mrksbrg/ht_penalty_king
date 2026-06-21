@@ -198,8 +198,8 @@ def derive_profile(p: Player) -> PenaltyProfile:
     shot_placement = 0.45 * sp + 0.20 * pa + 0.15 * wg + 0.10 * pm + 0.10 * fm
 
     composure = (
-        0.35 * ex + 0.20 * fm + 0.15 * _n(p.leadership)
-        + 0.15 * _n(p.loyalty) + 0.15 * gc
+        0.35 * ex + 0.25 * fm + 0.15 * _n(p.leadership)
+        + 0.10 * _n(p.loyalty) + 0.15 * gc
     )
     # chaos: temperament, youth, unpredictability raise variance
     unpredictable = 1.0 if p.speciality == 4 else 0.0
@@ -216,9 +216,9 @@ def derive_profile(p: Player) -> PenaltyProfile:
     )
 
     keeper_skill = (
-        0.55 * kp + 0.12 * ex + 0.10 * df + 0.08 * pm + 0.08 * sp + 0.07 * gc
+        0.50 * kp + 0.12 * ex + 0.10 * df + 0.08 * pm + 0.08 * sp + 0.07 * gc + 0.05 * fm
     )
-    keeper_reading = 0.40 * ex + 0.30 * pm + 0.30 * kp
+    keeper_reading = 0.35 * ex + 0.30 * pm + 0.25 * kp + 0.10 * fm
     keeper_reach = 0.60 * kp + 0.20 * gc + 0.20 * df
     fatigue_resistance = _n(p.stamina)
 

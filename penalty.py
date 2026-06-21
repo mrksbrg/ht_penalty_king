@@ -188,10 +188,10 @@ def generate_shot_quality(sh: PenaltyProfile, duel: DuelContext, rng: random.Ran
     # general_class lets any high-TSI player benefit; scoring rewards forwards most.
     base = sh.weak_foot_ability if duel.weaker_foot else sh.penalty_technique
     star = (
-        0.45 * base
+        0.42 * base
         + 0.18 * sh.general_class
-        + 0.27 * (sh.player.scoring / 20.0)   # forwards rewarded most
-        + 0.10 * (sh.player.form / 8.0)
+        + 0.25 * (sh.player.scoring / 20.0)   # forwards rewarded most
+        + 0.15 * (sh.player.form / 8.0)
     )
     idx += int(round((star - 0.40) * cfg.quality_star_gain))
 

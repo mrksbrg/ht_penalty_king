@@ -95,14 +95,18 @@ def _barb(ev: Event, sh: PenaltyProfile, ctx: dict, rng: random.Random) -> str:
                            ("hopplos_goal", "hopplos"),
                            ("sympatisk_goal", "sympatisk"),
                            ("age_uråldrig_goal", "age_uråldrig"),
-                           ("otrevlig", "otrevlig")):
+                           ("otrevlig", "otrevlig"),
+                           ("hogform_goal", "hogform"),
+                           ("lagform_goal", "lagform")):
             if trait in t and key in S:
                 keys.append(key)
     else:
         for key, trait in (("dyrgrip_miss", "dyrgrip"),
                            ("trotjanare_miss", "trotjanare"),
                            ("nyforvarv_miss", "nyforvarv"),
-                           ("temperamentsfull_miss", "temperamentsfull")):
+                           ("temperamentsfull_miss", "temperamentsfull"),
+                           ("hogform_miss", "hogform"),
+                           ("lagform_miss", "lagform")):
             if trait in t and key in S:
                 keys.append(key)
     if not keys:
@@ -133,6 +137,7 @@ def _aftermath(ev: Event, ctx: dict, rng: random.Random) -> str:
 
 _PERSONALITY_TRAITS = ["ohederlig", "otrevlig", "temperamentsfull",
                        "sympatisk", "arlig", "lugn"]
+_FORM_TRAITS = ["hogform", "lagform"]
 
 
 def _salient_personality(traits: list, rng: random.Random) -> str | None:
@@ -148,6 +153,17 @@ def _personality_reaction(pool_key: str, traits: list, ctx: dict,
     trait = _salient_personality(traits, rng)
     if not trait:
         return ""
+    pool = LANG.S.get(pool_key, {}).get(trait)
+    return _fmt(_pick(rng, pool), ctx) if pool else ""
+
+
+def _form_reaction(pool_key: str, traits: list, ctx: dict,
+                   rng: random.Random) -> str:
+    """A comment on the player's form (hogform/lagform). '' if neither tag present."""
+    hits = [t for t in traits if t in _FORM_TRAITS]
+    if not hits:
+        return ""
+    trait = rng.choice(hits)
     pool = LANG.S.get(pool_key, {}).get(trait)
     return _fmt(_pick(rng, pool), ctx) if pool else ""
 
@@ -182,6 +198,9 @@ def result_text(ev: Event, sh: PenaltyProfile, kp: PenaltyProfile,
         pr = _personality_reaction("trait_goal", sh.report_traits, ctx, rng)
         if pr:
             lines.append(pr)
+        fr = _form_reaction("form_goal", sh.report_traits, ctx, rng)
+        if fr:
+            lines.append(fr)
         if ev.keeper_eliminated:
             lines.append(_fmt(ui["fifth_prick"], ctx))
             if ev.new_keeper_id is not None:
@@ -197,6 +216,9 @@ def result_text(ev: Event, sh: PenaltyProfile, kp: PenaltyProfile,
         kpr = _personality_reaction("keeper_save_trait", kp.report_traits, ctx, rng)
         if kpr:
             lines.append(kpr)
+        kfr = _form_reaction("form_save", kp.report_traits, ctx, rng)
+        if kfr:
+            lines.append(kfr)
         lines.append(_aftermath(ev, ctx, rng))
 
     else:  # miss
@@ -207,6 +229,9 @@ def result_text(ev: Event, sh: PenaltyProfile, kp: PenaltyProfile,
         pr = _personality_reaction("trait_miss", sh.report_traits, ctx, rng)
         if pr:
             lines.append(pr)
+        fr = _form_reaction("form_miss", sh.report_traits, ctx, rng)
+        if fr:
+            lines.append(fr)
         lines.append(_aftermath(ev, ctx, rng))
 
     if big:

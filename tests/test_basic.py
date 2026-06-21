@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import os
 import random
+import string as _string
 
 from ..config import Config
 from ..game import play_game
@@ -70,6 +71,69 @@ def test_keeper_not_dominant():
     assert rate > 0.4, f"keeper too dominant: avg shot scores only {rate:.2f}"
 
 
+# ──────────────────── language-pack safety tests ────────────────────
+
+# Every placeholder in a narrative string must be one of these.
+# report.py/_ctx() supplies them; anything else → KeyError at runtime.
+_VALID_PLACEHOLDERS = {"s", "k", "nk", "sal", "ssp", "ssc", "sbest", "kkeep", "n"}
+
+# These sections use different or no placeholders — skip them.
+_SKIP_SECTIONS = {"web", "ui", "SKILL_LEVELS"}
+
+# Pools picked unconditionally with rng.choice() — an empty list crashes.
+_MANDATORY_POOLS = ("runup_neutral", "keeper_escapes", "keeper_survives")
+# Dict pools whose every sub-list is also mandatory if the key exists.
+_MANDATORY_DICTS = ("runup_trait", "runup_situation")
+
+
+def _all_strings(obj):
+    """Recursively yield every str leaf from a nested dict/list."""
+    if isinstance(obj, str):
+        yield obj
+    elif isinstance(obj, list):
+        for item in obj:
+            yield from _all_strings(item)
+    elif isinstance(obj, dict):
+        for v in obj.values():
+            yield from _all_strings(v)
+
+
+def _placeholders(text: str) -> set[str]:
+    """Extract bare field names from a Python format string."""
+    return {
+        fname.split(".")[0].split("[")[0]
+        for _, fname, _, _ in _string.Formatter().parse(text)
+        if fname is not None
+    }
+
+
+def test_language_placeholders():
+    """No narrative string may reference an unknown placeholder."""
+    from ..languages import sv, en
+    for mod in (sv, en):
+        narrative = {k: v for k, v in mod.STRINGS.items() if k not in _SKIP_SECTIONS}
+        for text in _all_strings(narrative):
+            bad = _placeholders(text) - _VALID_PLACEHOLDERS
+            assert not bad, (
+                f"[{mod.NAME}] unknown placeholder(s) {bad!r} in:\n  {text!r}"
+            )
+
+
+def test_language_mandatory_pools():
+    """Pools that are always passed to rng.choice() must never be empty."""
+    from ..languages import sv, en
+    for mod in (sv, en):
+        S = mod.STRINGS
+        for key in _MANDATORY_POOLS:
+            pool = S.get(key, [])
+            assert pool, f"[{mod.NAME}] mandatory pool '{key}' is empty or missing"
+        for dict_key in _MANDATORY_DICTS:
+            for subkey, pool in S.get(dict_key, {}).items():
+                assert pool, (
+                    f"[{mod.NAME}] mandatory pool '{dict_key}[{subkey}]' is empty"
+                )
+
+
 def test_game_invariants():
     cfg = Config()
     players = _toy(12)
@@ -87,6 +151,8 @@ def _run_all():
     test_simulate_valid()
     test_keeper_not_dominant()
     test_game_invariants()
+    test_language_placeholders()
+    test_language_mandatory_pools()
     if os.path.isdir(_HRF_DIR):
         players = parse_players(find_latest_hrf(_HRF_DIR))
         r = play_game(players, Config(seed=7), random.Random(7))

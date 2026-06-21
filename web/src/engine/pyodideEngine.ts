@@ -83,6 +83,12 @@ export async function loadHrf(text: string): Promise<LoadedSquad> {
   return call<LoadedSquad>(`eng.load_hrf("/uploads/team.hrf")`);
 }
 
+/** Load the bundled sample squad (public/example.hrf) — for the first-run demo. */
+export async function loadExample(): Promise<LoadedSquad> {
+  const text = await fetchText(`${BASE}example.hrf`);
+  return loadHrf(text);
+}
+
 export function createGame(
   squad: number, seed: number | null, watchFrom: number,
 ): Promise<GameHandle> {

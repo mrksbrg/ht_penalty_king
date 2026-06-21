@@ -72,6 +72,7 @@ STRINGS = {
     "web": {
         "intro": "Importera ditt Hattrick-lag (.hrf) och spela Fem Prickar.",
         "choose_file": "Välj HRF-fil",
+        "try_example": "Prova med exempellag",
         "file_error": "Kunde inte läsa filen: ",
         "players_word": "spelare",
         "scoring_abbr": "mål",

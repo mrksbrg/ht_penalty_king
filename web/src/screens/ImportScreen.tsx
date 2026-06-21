@@ -1,7 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as engine from "../engine/pyodideEngine";
 import type { LoadedSquad, Player, UiStrings } from "../engine/types";
 import { PlayerCard } from "../components/PlayerCard";
+
+// Set once we've auto-shown the sample squad, so it only happens on a fresh install.
+const SEEN_EXAMPLE_KEY = "pk_seen_example";
 
 // Defensive→attacking order used for sorting (labels come from the language pack).
 const POSITION_ORDER = ["keeper", "defender", "wingback", "winger", "playmaker", "forward", "trainer", "former"];
@@ -67,6 +70,30 @@ export function ImportScreen(props: {
     }
   }
 
+  async function loadExample() {
+    setBusy(true); setErr(null);
+    try {
+      onSquad(await engine.loadExample());
+    } catch (ex) {
+      setErr(ui.file_error + (ex as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // On a fresh install, preload the sample squad once so first-time users land on
+  // a populated list and can start a game immediately. Skipped after they've
+  // dismissed/replaced it, and never overrides a squad they've already loaded.
+  const autoTried = useRef(false);
+  useEffect(() => {
+    if (autoTried.current || squad) return;
+    autoTried.current = true;
+    if (localStorage.getItem(SEEN_EXAMPLE_KEY)) return;
+    localStorage.setItem(SEEN_EXAMPLE_KEY, "1");
+    loadExample();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <>
       <p className="sub">{ui.intro}</p>
@@ -85,6 +112,11 @@ export function ImportScreen(props: {
           {busy ? "…" : ui.choose_file}
           <input type="file" hidden onChange={onFile} disabled={busy} />
         </label>
+        <button className="ghost clickable" disabled={busy}
+                style={{ display: "block", width: "100%", marginTop: 8 }}
+                onClick={loadExample}>
+          {ui.try_example}
+        </button>
         {err && <p className="sub" style={{ color: "var(--miss)" }}>{err}</p>}
       </div>
 

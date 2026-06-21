@@ -10,7 +10,7 @@ export interface Nationality { id: number; name: string; flag: string }
 
 // The web UI chrome for the active language (engine.ui_strings() = STRINGS['web']).
 export interface UiStrings {
-  intro: string; choose_file: string; file_error: string;
+  intro: string; choose_file: string; try_example: string; file_error: string;
   players_word: string; scoring_abbr: string; keeper_abbr: string;
   watch_from: string; remaining_word: string; start: string;
   warming_up: string; dust_settles: string; eliminated_word: string;

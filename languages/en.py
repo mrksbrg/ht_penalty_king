@@ -48,6 +48,7 @@ STRINGS = {
     "web": {
         "intro": "Import your Hattrick squad (.hrf) and play Fem Prickar.",
         "choose_file": "Choose HRF file",
+        "try_example": "Try a sample squad",
         "file_error": "Couldn't read the file: ",
         "players_word": "players",
         "scoring_abbr": "gls",

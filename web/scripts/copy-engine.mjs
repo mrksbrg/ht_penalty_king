@@ -41,7 +41,19 @@ async function main() {
     path.resolve(here, "..", "public", "engine", "manifest.json"),
     JSON.stringify(manifest, null, 2),
   );
-  console.log(`copied ${manifest.length} engine files -> public/engine/`);
+
+  // Also bundle the sample squad so first-time users can try the game without
+  // hunting for an .hrf file. Served as a static asset at /example.hrf.
+  const exampleDir = path.join(pkgRoot, "example");
+  const hrf = (await fs.readdir(exampleDir)).find((f) => f.endsWith(".hrf"));
+  if (hrf) {
+    await fs.copyFile(
+      path.join(exampleDir, hrf),
+      path.resolve(here, "..", "public", "example.hrf"),
+    );
+  }
+
+  console.log(`copied ${manifest.length} engine files + example.hrf -> public/`);
 }
 
 main().catch((e) => {
